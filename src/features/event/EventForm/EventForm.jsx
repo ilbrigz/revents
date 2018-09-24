@@ -1,34 +1,52 @@
-import React from 'react';
-import { Segment, Form, Button } from 'semantic-ui-react';
+import React from "react";
+import { Segment, Form, Button } from "semantic-ui-react";
+const emptyEvent = {
+	title: "",
+	date: "",
+	city: "",
+	venue: "",
+	hostedBy: ""
+};
 class EventForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			event: {
-				title: '',
-				date: '',
-				city: '',
-				venue: '',
-				hostedBy: ''
-			}
+			event: emptyEvent
 		};
+		console.log(this.state);
 	}
 
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.selectedEvent !== this.props.selectedEvent) {
+			this.setState({
+				event: nextProps.selectedEvent || emptyEvent
+			});
+		}
+	}
 	onFormSubmit = e => {
 		e.preventDefault();
-		console.log(this.state.event);
+		if (this.props.selectedEvent) {
+			this.props.handleUpdateEvent(this.state.event);
+		} else {
+			this.props.createEvent(this.state.event);
+		}
 	};
 	onInputChange = e => {
-		// this.setState({ [e.target.name]: e.target.value });
 		const newEvent = this.state.event;
 		newEvent[e.target.name] = e.target.value;
 		this.setState({
 			event: newEvent
 		});
+		console.log(this.state);
 	};
-	handleCreateEvent = () => {
-		this.props.createEvent(this.state.event);
-	};
+	componentDidMount() {
+		if (this.props.selectedEvent !== null) {
+			this.setState({
+				event: this.props.selectedEvent
+			});
+		}
+	}
+
 	render() {
 		const { handleCancel } = this.props;
 		const { event } = this.state;
@@ -49,6 +67,7 @@ class EventForm extends React.Component {
 						<input
 							name="date"
 							onChange={this.onInputChange}
+							value={event.date}
 							type="date"
 							placeholder="Event Date"
 						/>
@@ -58,6 +77,7 @@ class EventForm extends React.Component {
 						<input
 							name="city"
 							onChange={this.onInputChange}
+							value={event.city}
 							placeholder="City event is taking place"
 						/>
 					</Form.Field>
@@ -65,6 +85,7 @@ class EventForm extends React.Component {
 						<label>Venue</label>
 						<input
 							name="venue"
+							value={event.venue}
 							onChange={this.onInputChange}
 							placeholder="Enter the Venue of the event"
 						/>
@@ -73,15 +94,12 @@ class EventForm extends React.Component {
 						<label>Hosted By</label>
 						<input
 							name="hostedBy"
+							value={event.hostedBy}
 							onChange={this.onInputChange}
 							placeholder="Enter the name of person hosting"
 						/>
 					</Form.Field>
-					<Button
-						onClick={this.handleCreateEvent}
-						positive
-						type="submit"
-					>
+					<Button positive type="submit">
 						Submit
 					</Button>
 					<Button onClick={handleCancel} type="button">
